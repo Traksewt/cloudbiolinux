@@ -5,6 +5,7 @@ from time import sleep
 from datetime import datetime
 from boto.exception import EC2ResponseError, S3ResponseError
 from boto.s3.key import Key
+from .util import eval_template
 
 DEFAULT_BUCKET_NAME = 'cloudman'
 
@@ -72,7 +73,6 @@ def detach_volumes(vm_launcher, options):
     for volume in volumes:
         volume_id = volume['id']
         path = volume.get("path")
-
         env.safe_sudo("umount '%s'" % path)
         _detach(boto_connection, instance_id, volume_id)
 
@@ -82,6 +82,7 @@ def make_snapshots(vm_launcher, options):
     for volume in volumes:
         path = volume.get("path")
         desc = volume.get("description", "Snapshot of path %s" % path)
+        desc = eval_template(env, desc)
         # Allow volume to specify it should not be snapshotted, e.g. if
         # piggy backing on core teams snapshots for galaxyIndicies for instance.
         snapshot = volume.get("snapshot", True)
@@ -90,14 +91,23 @@ def make_snapshots(vm_launcher, options):
 
 
 def sync_cloudman_bucket(vm_launcher, options):
-    cloudman_options = options.get("cloudman", {})
-    bucket = cloudman_options.get("user_data", {}).get("bucket_default", None)
-    bucket_source = cloudman_options.get("bucket_source", None)
+    bucket = options.get("target_bucket", None)
+    if not bucket:
+        bucket = __get_bucket_default(options)
+    bucket_source = options.get("cloudman", {}).get("bucket_source", None)
     if not bucket or not bucket_source:
+        print "Warning: Failed to sync cloud bucket, bucket or bucket_source is undefined."
         return
     conn = vm_launcher.boto_s3_connection()
     for file_name in listdir(bucket_source):
         _save_file_to_bucket(conn, bucket, file_name, join(bucket_source, file_name))
+
+
+def __get_bucket_default(options):
+    cloudman_options = options.get("cloudman", {})
+    user_data = cloudman_options = cloudman_options.get('user_data', None) or {}
+    bucket = user_data.get("bucket_default", None)
+    return bucket
 
 
 def _get_attached(conn, instance_id, device_id, valid_states=['attached']):

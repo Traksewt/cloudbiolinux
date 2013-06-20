@@ -31,8 +31,8 @@ def install_multiplierz(env):
 
 
 def install_proteowizard(env):
-    build_id = "83083"
-    version = "3_0_4472"
+    build_id = "85131"
+    version = "3_0_4624"
     url = "http://teamcity.labkey.org:8080/repository/download/bt36/%s:id/pwiz-bin-windows-x86-vc100-release-%s.tar.bz2?guest=1" % (build_id, version)
     install_dir = env.get("install_dir")
     share_dir = "%s/share/proteowizard" % install_dir
@@ -52,9 +52,9 @@ def install_morpheus(env):
     with _make_tmp_dir() as work_dir:
         with cd(work_dir):
             _fetch_and_unpack(url, need_dir=False)
-            env.safe_sudo("cp -r Morpheus/* '%s'" % share_dir)
-    proteowizard_apps = ["morpheus_cl.exe", "Morpheus.exe"]
-    for app in proteowizard_apps:
+            env.safe_sudo("cp -r Morpheus '%s'" % share_dir)
+    morpheus_exes = ["morpheus_cl.exe", "Morpheus.exe"]
+    for app in morpheus_exes:
         setup_wine_wrapper(env, "%s/%s" % (share_dir, app))
 
 

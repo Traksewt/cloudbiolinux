@@ -10,7 +10,7 @@ from cloudbio.biodata.genomes import install_data, install_data_s3
 from cloudbio.galaxy import _setup_galaxy_env_defaults
 from cloudbio.galaxy.utils import _chown_galaxy
 from cloudbio.package.deb import _apt_packages
-from fabfile import _perform_install
+from fabfile import _perform_install, _install_custom
 
 
 from .cloudman import cloudman_launch, bundle_cloudman
@@ -131,6 +131,7 @@ def _expand_actions(actions):
                           "setup_image",
                           "launch",  # Dummy action justs launches image
                           "install_biolinux",
+                          "install_custom",
                           "ssh",
                           "attach_ip",
                           "snapshot_volumes",
@@ -175,6 +176,7 @@ def _setup_cloudbiolinux(options):
     flavor = get_main_options_string(options, "flavor", DEFAULT_CLOUDBIOLINUX_FLAVOR)
     _setup_logging(env)
     _configure_fabric_environment(env, flavor, fabricrc_loader=fabricrc_loader)
+    _setup_image_user_data(env, options)
 
 
 def _setup_cloudbiolinux_fabric_properties(env, options):
@@ -192,6 +194,11 @@ def _setup_cloudbiolinux_fabric_properties(env, options):
             overrides[key] = str(value)
     env.update(overrides)
     _setup_galaxy_env_defaults(env)
+
+
+def _setup_image_user_data(env, options):
+    if "image_user_data" in options:
+        env["image_user_data_dict"] = options["image_user_data"]
 
 
 def purge_genomes():
@@ -283,6 +290,8 @@ def configure_instance(options, actions):
         configure_sudoers(options)
     if "install_biolinux" in actions:
         install_biolinux(options)
+    if "install_custom" in actions:
+        install_custom(options)
     if "purge_tools" in actions:
         purge_tools()
     if "setup_tools" in actions:
@@ -300,6 +309,11 @@ def configure_instance(options, actions):
             seed_workflows(options)
     if "setup_ssh_key" in actions:
         configure_ssh_key(options)
+
+
+def install_custom(options):
+    package = options.get("package")
+    _install_custom(package)
 
 
 def install_biolinux(options):
