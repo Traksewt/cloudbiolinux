@@ -80,12 +80,12 @@ def install_bowtie2(env):
           "bowtie2-%s-source.zip" % (version, version)
     _get_install(url, env, _make_copy("find -perm -100 -name 'bowtie2*'"))
 
-@_if_not_installed("nbwa")
+@_if_not_installed("bwa")
 def install_bwa(env):
     """BWA:  aligns short nucleotide sequences against a long reference sequence.
     http://bio-bwa.sourceforge.net/
     """
-    default_version = "0.7.4"
+    default_version = "0.7.5a"
     version = env.get("tool_version", default_version)
     url = "http://downloads.sourceforge.net/project/bio-bwa/bwa-%s.tar.bz2" % (
             version)
@@ -480,7 +480,7 @@ def install_picard(env):
     """Command-line utilities that manipulate BAM files with a Java API.
     http://picard.sourceforge.net/
     """
-    version = "1.91"
+    version = "1.93"
     url = "http://downloads.sourceforge.net/project/picard/" \
           "picard-tools/%s/picard-tools-%s.zip" % (version, version)
     _java_install("picard", version, url, env)
@@ -576,8 +576,9 @@ def install_snpeff(env):
     """Variant annotation and effect prediction tool.
     http://snpeff.sourceforge.net/
     """
-    version = "3_1"
-    genomes = ["GRCh37.68", "hg19", "NCBIM37.66", "GRCm38.68", "athalianaTair10"]
+    version = "3_3"
+    genomes = ["GRCh37.71", "hg19", "GRCm38.71"]
+    #genomes_notinstalled = ["NCBIM37.66","athalianaTair10"]
     url = "http://downloads.sourceforge.net/project/snpeff/" \
           "snpEff_v%s_core.zip" % version
     genome_url_base = "http://downloads.sourceforge.net/project/snpeff/"\
@@ -839,7 +840,7 @@ def install_cortex_var(env):
     """De novo genome assembly and variation analysis from sequence data.
     http://cortexassembler.sourceforge.net/index_cortex_var.html
     """
-    version = "1.0.5.15"
+    version = "1.0.5.16"
     url = "http://downloads.sourceforge.net/project/cortexassembler/cortex_var/" \
           "latest/CORTEX_release_v{0}.tgz".format(version)
     def _cortex_build(env):
