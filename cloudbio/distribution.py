@@ -74,7 +74,7 @@ def _validate_target_distribution(dist, dist_name=None):
         if not dist_name:
             raise ValueError("Must specify a dist_name property when working with distribution %s" % dist)
         # Does this new method work with CentOS, do we need this.
-        actual_dist_name = env.safe_run_output("cat /etc/*release | grep DISTRIB_ID | cut -f 2 -d =")
+        actual_dist_name = env.safe_run_output("cat /etc/*release | grep DISTRIB_CODENAME | cut -f 2 -d =")
         print "'" + actual_dist_name + "' actual name + '" + dist_name +"' dist name : " + str(actual_dist_name.strip().lower().find(dist_name.strip()))
         if actual_dist_name.strip().lower().find(dist_name.strip()) == -1:
             raise ValueError("Distribution does not match machine; are you using correct fabconfig for " + dist)
